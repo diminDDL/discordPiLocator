@@ -1,0 +1,11 @@
+# Based on https://github.com/ThatRedKite/thatkitebot/
+services:
+  pilocator:
+    build:  .
+    volumes:
+      - ./pilocator/:/app/pilocator
+      - ./data/:/app/data/
+    restart:  "no"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: bash -c "cd /app/ && python3 -m pilocator"
