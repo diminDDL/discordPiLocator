@@ -10,6 +10,7 @@ from pathlib import Path
 import aiohttp
 import psutil
 import discord
+import aioredis
 import json
 from discord.ext import commands, bridge
 
@@ -21,6 +22,7 @@ enabled_ext = [
     "pilocator.cogs.sudocog",
     "pilocator.cogs.locator",
     "pilocator.cogs.help",
+    "pilocator.cogs.utilitiescog",
 ]
 
 tempdir = "/tmp/pilocator/"
@@ -84,6 +86,14 @@ class pilocator(bridge.Bot, ABC):
         # sessions
         self.aiohttp_session = None  # give the aiohttp session an initial value
         self.loop.run_until_complete(self.aiohttp_start())
+
+        print("Connecting to redis...")
+        try:
+            self.redis = aioredis.Redis(host="pilocator_redis", db=1, decode_responses=True)
+            print("Connection successful.")
+        except aioredis.ConnectionError:
+            print("Redis connection failed. Check if redis is running.")
+            exit(1)
 
         # bot status info
         self.cpu_usage = 0

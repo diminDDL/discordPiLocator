@@ -5,7 +5,26 @@ import discord
 import datetime
 import requests
 import feedparser
+from time import mktime
 from discord.ext import commands, tasks
+from pilocator.backend.util import pretty_date
+from pilocator.backend.util import can_change_settings
+
+
+async def check_permissions(ctx, channel: discord.TextChannel, role: discord.Role):
+    if not channel.permissions_for(ctx.me).send_messages:
+        await ctx.respond("I don't have permission to send messages in that channel.")
+        return False
+    elif not channel.permissions_for(ctx.me).embed_links:
+        await ctx.respond("I don't have permission to embed links in that channel.")
+        return False
+    elif not channel.permissions_for(ctx.me).manage_messages:
+        await ctx.respond("I don't have permission to manage messages in that channel.")
+        return False
+    elif not role.mentionable:
+        await ctx.respond("I don't have permission to mention that role.")
+        return False
+    return True
 
 
 class Locate(commands.Cog, name="piLocate"):
@@ -14,6 +33,7 @@ class Locate(commands.Cog, name="piLocate"):
     """
     def __init__(self, bot):
         self.bot: commands.Bot = bot
+        self.redis = self.bot.redis
         self.FEED_URL = 'https://rpilocator.com/feed/'
         self.USER_AGENT = 'DiscordBot'
         self.control = []
@@ -21,14 +41,38 @@ class Locate(commands.Cog, name="piLocate"):
         if f.entries:
             for entries in f.entries:
                 self.control.append(entries.id)
+
+        # self.control.pop(0)    # remove after testing
+
         self.lastUpdate = None
         self.lastFail = None
         self.updateFailed = False
         self.listen.start()
 
     @commands.command(aliases=["lastupdate", "lu", "last", "update"])
-    async def getLastUpdate(self, ctx):
-        await ctx.send(f"Last update: {self.lastUpdate.strftime('%d/%m/%Y %H:%M:%S')}")
+    async def lastcheck(self, ctx):
+        """
+        This command is used to get the time of the last update from rpilocator.com
+        """
+        if self.lastUpdate != None:
+            await ctx.send(f"Last update (UTC): {self.lastUpdate.strftime('%d/%m/%Y %H:%M:%S')}, {pretty_date(time=self.lastUpdate)}")
+        else:
+            await ctx.send("No update yet")
+
+    @commands.check(can_change_settings)
+    @commands.command()
+    async def setup(self, ctx, channel: discord.TextChannel, role: discord.Role):
+        """
+        This command is used to setup the channel to post the updates and the role to ping when there is a new update
+        """
+        if not await can_change_settings(ctx):
+            return
+
+        if not await check_permissions(ctx, channel, role):
+            return
+        
+        print(channel)
+        print(role)
 
     def cog_unload(self):
         self.listen.cancel()
@@ -56,21 +100,22 @@ class Locate(commands.Cog, name="piLocate"):
     async def listen(self):
         try:
             f = feedparser.parse(self.FEED_URL, agent=self.USER_AGENT)
-
+            self.lastUpdate = datetime.datetime.now()
             for entries in f.entries:
                 if entries.id not in self.control:
-                
-                    embed = self.formatEmbed(entries, self.lastUpdate)
+                    
+                    embed = self.formatEmbed(entries, datetime.datetime.fromtimestamp(mktime(entries.published_parsed)))
 
-                    for guild in self.getGuildList():
-                        channel = await self.bot.fetch_channel(self.getUpdateChannel(guild))
+                    for guild in await self.getGuildList():
+                        chanelInt = await self.getUpdateChannel(guild)
+                        channel = await self.bot.fetch_channel(chanelInt)
                         await channel.send(embed=embed)
 
                     self.control.append(entries.id)
-            self.lastUpdate = datetime.datetime.now()
-        except:
+        except Exception as e:
             self.updateFailed = True
             self.lastFail = datetime.datetime.now()
+            print("failed: " + str(e))
             return
 
 def setup(bot):

@@ -6,8 +6,8 @@ from discord.ext import commands
 import random
 # thanks to dunnousername  for this help command. It was originally used in the styrobot discord bot
 info = {
-    'repo': 'https://github.com/ThatRedKite/thatkitebot',
-    'name': 'ThatKiteBot'
+    'repo': 'https://github.com/diminDDL/discordPiLocator',
+    'name': 'PiLocatorBot'
 }
 
 
@@ -58,7 +58,7 @@ class BetterHelpCommand(commands.HelpCommand):
         if random.random() < 0.9:
             e.set_footer(text='Made with ❤️')
         else:
-            e.set_footer(text='Made with 🍆')
+            e.set_footer(text='Made with 🫐')
         await self.send_embed(e)
 
     async def send_cog_help(self, cog: commands.Cog):

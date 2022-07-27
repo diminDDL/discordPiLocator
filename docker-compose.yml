@@ -9,3 +9,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     command: bash -c "cd /app/ && python3 -m pilocator"
+
+  redis:
+    container_name: pilocator_redis
+    volumes:
+      - ./data/redis:/data
+    image: "redis:alpine"
+    entrypoint: redis-server --appendonly yes
