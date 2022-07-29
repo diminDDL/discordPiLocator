@@ -15,6 +15,7 @@ class EmbedColors:
     sulfur_yellow = 0xf1dd38
     ultramarine_blue = 0x00387b
     telemagenta = 0xbc4077
+    raspberry_red = 0x9b0f0f
     cum = 0xfbf5e9
 
 async def can_change_settings(ctx: commands.Context):
