@@ -4,3 +4,9 @@ data/*.yml
 # IDEs
 .idea
 .vscode
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+#DB
+data/*.aof
+data/*.rdb

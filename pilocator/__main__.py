@@ -23,6 +23,7 @@ enabled_ext = [
     "pilocator.cogs.locator",
     "pilocator.cogs.help",
     "pilocator.cogs.utilitiescog",
+    "pilocator.cogs.listenercog",
 ]
 
 tempdir = "/tmp/pilocator/"

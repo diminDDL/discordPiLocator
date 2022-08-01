@@ -1,10 +1,13 @@
 #  Copyright (c) 2019-2022 ThatRedKite and contributors
+#  Copyright (c) 2022 diminDDL
+#  License: MIT License
 
 import asyncio
 import glob
 import os
 import discord
 from discord.ext import commands
+
 
 class EmbedColors:
     blood_orange = 0xe25303
@@ -18,6 +21,7 @@ class EmbedColors:
     raspberry_red = 0x9b0f0f
     cum = 0xfbf5e9
 
+
 async def can_change_settings(ctx: commands.Context):
     """
     Checks if the user has the permission to change settings.
@@ -25,7 +29,9 @@ async def can_change_settings(ctx: commands.Context):
     channel: discord.TextChannel = ctx.channel
     isowner = await ctx.bot.is_owner(ctx.author)
     isadmin = channel.permissions_for(ctx.author).administrator
-    return isowner or isadmin
+    ischanneleditor = channel.permissions_for(ctx.author).manage_channels
+    return isowner or isadmin or ischanneleditor
+
 
 def pretty_date(time=False):
     """
@@ -71,7 +77,7 @@ def pretty_date(time=False):
     return str(day_diff // 365) + " years ago"
 
 
-async def errormsg(ctx=None, msg: str="", exc="", embed_only=False):
+async def errormsg(ctx=None, msg: str = "", exc="", embed_only=False):
     if not embed_only:
         embed = discord.Embed(title="**ERROR!**", description=msg)
         embed.color = EmbedColors.traffic_red
