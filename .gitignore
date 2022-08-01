@@ -8,5 +8,4 @@ data/*.yml
 __pycache__/
 *.py[cod]
 #DB
-data/*.aof
-data/*.rdb
+data/redis
