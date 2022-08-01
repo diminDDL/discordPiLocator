@@ -62,7 +62,8 @@ class Locate(commands.Cog, name="piLocate"):
             for entries in f.entries:
                 self.control.append(entries.id)
 
-        self.control.pop(0)    # remove after testing
+        # self.control.pop(0)    # remove after testing
+        # self.control.pop(1)    # remove after testing
 
         self.lastUpdate = None
         self.lastFail = None
@@ -128,7 +129,7 @@ class Locate(commands.Cog, name="piLocate"):
                     if not await is_allowed_filter(device):
                         await ctx.send("Invalid device filter")
                         return
-            if country != 0 and vendors != 0:
+            if countries != 0 and vendors != 0:
                 await ctx.send("You can't use both country and vendor filters")
                 return
         else:
@@ -224,8 +225,8 @@ class Locate(commands.Cog, name="piLocate"):
         deviceLookUpTable = {
             allowedDevices[0]: "CM3",       # CM3
             allowedDevices[1]: "CM4",       # CM4
-            allowedDevices[2]: "RPi 4",     # PI3
-            allowedDevices[3]: "RPi 3",     # PI4
+            allowedDevices[2]: "RPi 3",     # PI3
+            allowedDevices[3]: "RPi 4",     # PI4
             allowedDevices[4]: "Pi Zero",   # PI ZERO
         }
         key = f"notification_settings:{guild.id}:{channel.id}"
@@ -233,24 +234,36 @@ class Locate(commands.Cog, name="piLocate"):
         countries = data['countries']
         vendors = data['vendors']
         devices = data['devices']
+
+        if countries == '0' and vendors == '0' and devices == '0':
+            return True
+        
+        countryFlag = False
+        vendorFlag = False
+        deviceFlag = False
+
         link = message.link
         title = message.title
         if countries != '0':
             for country in countries.split(','):
                 if country in title:
-                    return True
-            pass
+                    countryFlag = True
+        elif vendors == '0':
+            countryFlag = True
         if vendors != '0':
             for vendor in vendors.split(','):
                 if vendor.lower() in link.lower():
-                    return True
+                    vendorFlag = True
+        elif countries == '0':
+            vendorFlag = True
         if devices != '0':
             for device in devices.split(','):
                 if deviceLookUpTable[device].lower() in title.lower():
-                    return True
-        if countries == '0' and vendors == '0' and devices == '0':
-            return True
-        return False
+                    deviceFlag = True
+        else:
+            deviceFlag = True
+        
+        return (countryFlag or vendorFlag) and deviceFlag
 
     @tasks.loop(seconds=59.0)
     async def listen(self):
@@ -266,11 +279,9 @@ class Locate(commands.Cog, name="piLocate"):
                         for channelInt in await self.getUpdateChannelList(guild):
                             channel = await self.bot.fetch_channel(channelInt)
                             role = guild.get_role(int(await self.redis.hget(f"notification_settings:{guild.id}:{channelInt}", 'role')))
-                            if (self.checkFilter(entries, guild, channel)):
+                            if (await self.checkFilter(entries, guild, channel)):
                                 await channel.send(embed=embed)
                                 await channel.send(f"{role.mention}")
-                            else:
-                                return
 
                     self.control.append(entries.id)
         except Exception as e:

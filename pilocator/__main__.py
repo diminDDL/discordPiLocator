@@ -38,7 +38,7 @@ if not Path(os.path.join(datadir, "init_settings.json")).exists():
     print("No init_settings.json file found. Creating one now.")
     settings_dict_empty = {
         "discord token": "",
-        "prefix": "+",
+        "prefix": "-",
     }
     # write the dict as json to the init_settings.json file with the json library
     with open(os.path.join(datadir, "init_settings.json"), "w") as f:
