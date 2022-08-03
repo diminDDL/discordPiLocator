@@ -78,7 +78,7 @@ class UtilityCommands(commands.Cog, name="utility commands"):
     async def invite(self, ctx):
         """This sends you an invite for the bot if you want to add it to one of your servers."""
         await ctx.author.send(
-            f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=412317247552&scope=bot%20applications.commands"
+            f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=274878187520&scope=bot%20applications.commands"
         )
 
     @commands.cooldown(1, 5, commands.BucketType.user)
