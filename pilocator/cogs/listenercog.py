@@ -41,7 +41,7 @@ class ListenerCog(commands.Cog):
     async def on_ready(self):
         print("\nbot successfully started!")
         await self.bot.change_presence(
-            activity=discord.Activity(name="a battle against russia", type=5),
+            activity=discord.Activity(name="-help", type=1),
             status=discord.Status.online,
         )
 
