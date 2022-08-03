@@ -1,5 +1,7 @@
 ## Discord Pi Locator bot
-A Discord bot used to get alerts on when raspberry pi's get back in stock. Using the RSS feed of rpilocator.com 
+A Discord bot used to get alerts on when raspberry pi's get back in stock. Using the RSS feed of rpilocator.com
+
+The bot also includes the ability to filter *models*, *countries* and *vendors* so that you can only get notified for the things you care about. For more info run `-help` to get a list of all commands, or `-help <command>` to get help regarding a specific command.
 
 ### Add it to your server
 If you don't want to host it yourself you can just invite the public version using this invite [link](https://discord.com/api/oauth2/authorize?client_id=824761148796698654&permissions=274878187520&scope=bot%20applications.commands).
