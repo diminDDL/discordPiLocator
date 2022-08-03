@@ -20,7 +20,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose
 git clone https://github.com/diminDDL/discordPiLocator.git
 ```
 ### Navigate to installed folder and start the docker container
-
+**Depending on your version of docker compose you will either need to use `docker-compose` or `docker compose` to run this correctly.**
 ```
 cd discordPiLocator
 sudo docker-compose up
