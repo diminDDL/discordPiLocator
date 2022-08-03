@@ -38,9 +38,6 @@ async def check_permissions(ctx, channel: discord.TextChannel, role: discord.Rol
     elif not channel.permissions_for(ctx.me).embed_links:
         await ctx.respond("I don't have permission to embed links in that channel.")
         return False
-    elif not channel.permissions_for(ctx.me).send_messages:
-        await ctx.respond("I don't have permission to manage messages in that channel.")
-        return False
     elif not role.mentionable:
         await ctx.respond("I don't have permission to mention that role.")
         return False
