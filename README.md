@@ -13,7 +13,7 @@ The following instructions will be for a Debian system. **There can be problems 
 
 ```
 sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose
 ```
 ### Clone the repository
 ```
