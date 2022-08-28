@@ -1,4 +1,6 @@
 ## Discord Pi Locator bot
+[![Made in Ukraine](https://img.shields.io/badge/made_in-ukraine-ffd700.svg?labelColor=0057b7)](https://vshymanskyy.github.io/StandWithUkraine)
+
 A Discord bot used to get alerts on when raspberry pi's get back in stock. Using the RSS feed of rpilocator.com
 
 The bot also includes the ability to filter *models*, *countries* and *vendors* so that you can only get notified for the things you care about. For more info run `-help` to get a list of all commands, or `-help <command>` to get help regarding a specific command.
