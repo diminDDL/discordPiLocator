@@ -10,6 +10,7 @@ class SudoCommands(commands.Cog, name="administrative commands"):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
         self.dirname = bot.dirname
+        self.redis = self.bot.redis
 
     @commands.is_owner()
     @commands.command()
@@ -51,6 +52,26 @@ class SudoCommands(commands.Cog, name="administrative commands"):
         await ctx.message.delete()
         await ctx.send(message)
 
+    @commands.is_owner()
+    @commands.command()
+    async def broadcast(self, ctx, *, message: str):
+        """send a message to all guilds the bot is in"""
+        for guild in self.bot.guilds:
+            try:
+                msg = message
+                if "\locatorRole/" in msg:
+                    # find the pilocator role for the current guild in the redis database
+                    key_list = [key async for key in self.redis.scan_iter(match=f"notification_settings:{guild.id}:*")]
+                    roles = ""
+                    for key in key_list:
+                        data = await self.redis.hgetall(key)
+                        role = guild.get_role(int(data['role']))
+                        if f"{role.mention}" not in roles:
+                            roles += f"{role.mention} "
+                    msg = msg.replace("\locatorRole/", roles)
+                await guild.system_channel.send(msg)
+            except Exception:
+                print(f"Could not send message to {guild.name}")
 
 def setup(bot):
     bot.add_cog(SudoCommands(bot))

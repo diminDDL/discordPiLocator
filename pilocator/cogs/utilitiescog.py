@@ -61,8 +61,10 @@ class UtilityCommands(commands.Cog, name="utility commands"):
                                 total users: **{total_users}**
                                 bot version: **{self.bot.version}**
                                 """, inline=False)
-
-        embed.set_thumbnail(url=str(self.bot.user.avatar.url))
+        try:
+            embed.set_thumbnail(url=str(self.bot.user.avatar.url))
+        except:
+            pass
 
         if not self.bot.debugmode:
             if cpu >= 90.0:
