@@ -5,7 +5,7 @@ services:
     volumes:
       - ./pilocator/:/app/pilocator
       - ./data/:/app/data/
-    restart:  "no"
+    restart:  "unless-stopped"
     environment:
       - PYTHONUNBUFFERED=1
     command: bash -c "cd /app/ && python3 -m pilocator"
@@ -16,3 +16,4 @@ services:
       - ./data/redis:/data
     image: "redis:alpine"
     entrypoint: redis-server --appendonly yes
+    restart:  "unless-stopped"
