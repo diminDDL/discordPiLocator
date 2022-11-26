@@ -8,7 +8,7 @@ import requests
 import feedparser
 from urllib.parse import urlparse, parse_qs
 from time import mktime
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, bridge
 from pilocator.backend.util import pretty_date
 from pilocator.backend.util import can_change_settings
 
@@ -67,25 +67,26 @@ class Locate(commands.Cog, name="piLocate"):
         self.updateFailed = False
         self.listen.start()
 
-    @commands.command(aliases=["lastupdate", "lu", "last", "update"])
-    async def lastcheck(self, ctx):
+    @bridge.bridge_command(aliases=["lastupdate", "lu", "last", "update"])
+    async def lastcheck(self, ctx: bridge.BridgeContext):
         """
         This command is used to get the time of the last update from rpilocator.com
         """
         if self.lastUpdate is not None:
-            await ctx.send(f"Last update: <t:{int(datetime.datetime.timestamp(self.lastUpdate))}:T>, {pretty_date(time=self.lastUpdate)}")
+            await ctx.respond(f"Last update: <t:{int(datetime.datetime.timestamp(self.lastUpdate))}:T>, {pretty_date(time=self.lastUpdate)}")
         else:
-            await ctx.send("No update yet")
+            await ctx.respond("No update yet")
 
     @commands.check(can_change_settings)
-    @commands.command()
-    async def setup(self, ctx, channel: discord.TextChannel, role: discord.Role, filter=''):
+    @bridge.bridge_command()
+    async def setup(self, ctx: bridge.BridgeContext, channel: discord.TextChannel, role: discord.Role, filter=''):
         """
-        This command is used to setup the channel to post the updates and the role to ping when there is a new update.
-        Allows a filter to be set while being set up. The format can be obtained at the bottom of this page: https://rpilocator.com/about.cfm
-        Examples: `-setup #channel @role` - sends all updates and pings the role.
-        `-setup #channel @role https://rpilocator.com/feed/?country=DE,NL,PL&cat=CM4,PI3,PIZERO` - sends only updates from Germany, Netherlands and Poland for CM4, PI3 and PI ZERO devices, and pings the role.
+        Used to setup the channel to post the updates and the role to ping when there is a new update.
         """
+        # Allows a filter to be set while being set up. The format can be obtained at the bottom of this page: https://rpilocator.com/about.cfm
+        # Examples: `-setup #channel @role` - sends all updates and pings the role.
+        # -setup #channel @role https://rpilocator.com/feed/?country=DE,NL,PL&cat=CM4,PI3,PIZERO` - sends only updates from Germany, Netherlands and Poland for CM4, PI3 and PI ZERO devices, and pings the role.
+
         # check seeings and permissions
         if not await can_change_settings(ctx):
             return
@@ -142,11 +143,11 @@ class Locate(commands.Cog, name="piLocate"):
             'devices': devices
         }
         await self.redis.hmset(key, setdict)
-        await ctx.send(f"The notification channel {channel.mention} is set up and {role.mention} will be pinged when there is a new update. Use `-unset <channel>` to remove the notification settings.")
+        await ctx.respond(f"The notification channel {channel.mention} is set up and {role.mention} will be pinged when there is a new update. Use `-unset <channel>` to remove the notification settings.")
 
     @commands.check(can_change_settings)
-    @commands.command()
-    async def unset(self, ctx, channel: discord.TextChannel):
+    @bridge.bridge_command()
+    async def unset(self, ctx: bridge.BridgeContext, channel: discord.TextChannel):
         """
         This command is used to remove the notification settings for a channel.
         """
@@ -158,13 +159,13 @@ class Locate(commands.Cog, name="piLocate"):
         key = f"notification_settings:{ctx.guild.id}:{channel.id}"
         try:
             await self.redis.delete(key)
-            await ctx.send(f"The notifications for channel {channel.mention} have been disabled.")
+            await ctx.respond(f"The notifications for channel {channel.mention} have been disabled.")
         except:
-            await ctx.send(f"The notifications for channel {channel.mention} does not exist.")
+            await ctx.respond(f"The notifications for channel {channel.mention} does not exist.")
 
     @commands.check(can_change_settings)
-    @commands.command()
-    async def list(self, ctx):
+    @bridge.bridge_command()
+    async def list(self, ctx: bridge.BridgeContext):
         """
         This command is used to list all the notification settings for the server.
         """
@@ -176,7 +177,7 @@ class Locate(commands.Cog, name="piLocate"):
         # Get the DB entries
         key_list = [key async for key in self.redis.scan_iter(match=f"notification_settings:{ctx.guild.id}:*")]
         if len(key_list) == 0:
-            await ctx.send("No notification settings found.")
+            await ctx.respond("No notification settings found.")
             return
         message = "List of notification settings:\n"
         for key in key_list:
@@ -187,7 +188,7 @@ class Locate(commands.Cog, name="piLocate"):
             vendors = data['vendors']
             devices = data['devices']
             message = message + f"Channel: {channel.mention}, Role: {role.mention}, Countries: {countries if countries != '0' else 'all'}, Vendors: {vendors if vendors != '0' else 'all'}, Devices: {devices if devices != '0' else 'all'}\n"
-        await ctx.send(message)
+        await ctx.respond(message)
 
     def cog_unload(self):
         self.listen.cancel()

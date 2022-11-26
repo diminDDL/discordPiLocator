@@ -84,7 +84,19 @@ class BetterHelpCommand(commands.HelpCommand):
         e = discord.Embed(title=(command.qualified_name or command.name))
         e.add_field(name='Name', value=(command.qualified_name or command.name), inline=False)
         e.add_field(name='Signature', value=(self.signature(command)), inline=False)
-        e.add_field(name='Help', value=(command.help or '[no help]'), inline=False)
+        if command.name != "setup":
+            e.add_field(name='Help', value=(command.help or '[no help]'), inline=False)
+        else:
+            helpStr = """
+        Used to setup the channel to post the updates and the role to ping when there is a new update.
+
+        Allows a filter to be set while being set up. The format can be obtained at the bottom of this page: https://rpilocator.com/about.cfm
+
+        Examples: `-setup #channel @role` - sends all updates and pings the role.
+
+        `-setup #channel @role https://rpilocator.com/feed/?country=DE,NL,PL&cat=CM4,PI3,PIZERO` - sends only updates from Germany, Netherlands and Poland for CM4, PI3 and PI ZERO devices, and pings the role.
+        """
+            e.add_field(name='Help', value=helpStr, inline=False)
         if len(command.aliases) != 0:
             e.add_field(name='Synonyms', value=('`' + "`, `".join(command.aliases) + '`' or '[no help]'), inline=False)
         await self.send_embed(e)

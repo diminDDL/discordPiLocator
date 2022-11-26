@@ -6,7 +6,7 @@ import discord
 import aiohttp
 import psutil
 import si_prefix
-from discord.ext import commands
+from discord.ext import commands, bridge
 from datetime import datetime
 from pilocator.backend.util import EmbedColors as ec
 
@@ -33,7 +33,7 @@ class UtilityCommands(commands.Cog, name="utility commands"):
         self.bot = bot
 
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @commands.command(pass_context=True, aliases=["uptime", "load"])
+    @bridge.bridge_command(pass_context=True, aliases=["uptime", "load"])
     async def status(self, ctx):
         """
         Displays the status of the bot.
@@ -74,9 +74,9 @@ class UtilityCommands(commands.Cog, name="utility commands"):
                 embed.color = 0x00b51a
         else:
             embed.color = 0x47243c
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
 
-    @commands.command()
+    @bridge.bridge_command()
     async def invite(self, ctx):
         """This sends you an invite for the bot if you want to add it to one of your servers."""
         await ctx.author.send(
@@ -84,7 +84,7 @@ class UtilityCommands(commands.Cog, name="utility commands"):
         )
 
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     async def about(self, ctx):
         """
         This command is here to show you what the bot is made of.
@@ -99,8 +99,10 @@ class UtilityCommands(commands.Cog, name="utility commands"):
                   This is a fork of the another bot made by ThatRedKite available [here](https://github.com/ThatRedKite/thatkitebot).
                 """
         )
-        embed.set_thumbnail(url=str(self.bot.user.avatar.url))
-        
+        try:
+            embed.set_thumbnail(url=str(self.bot.user.avatar.url))
+        except:
+            pass
         # dictionary for discord username lookup from github username
         # format: "githubusername":"discordID"
         authordict = {
@@ -144,7 +146,7 @@ class UtilityCommands(commands.Cog, name="utility commands"):
 
         embed.set_footer(text="PiLocator v{}".format(self.bot.version))
 
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
 
 
 def setup(bot):
