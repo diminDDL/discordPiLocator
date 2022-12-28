@@ -3,7 +3,6 @@
 #  License: MIT License
 
 import os
-from abc import ABC
 from datetime import datetime
 from pathlib import Path
 
@@ -64,7 +63,7 @@ with open(os.path.join(datadir, "init_settings.json"), "r") as f:
 
 
 # define the bot class
-class pilocator(bridge.Bot, ABC):
+class pilocator(bridge.Bot):
     def __init__(self, command_prefix, dirname, help_command=None, description=None, **options):
         super().__init__(command_prefix, help_command=help_command, description=description, **options)
         # ---static values---

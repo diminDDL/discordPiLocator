@@ -16,11 +16,9 @@ RUN pip3 install --upgrade pip
 
 RUN pip3 install -r requirements.txt
 
-RUN git clone https://github.com/Pycord-Development/pycord --depth 1
-
-WORKDIR /tmp/pycord/
-
-RUN pip3 install -U .[speed]
+# until https://github.com/Pycord-Development/pycord/issues/1840 is fixed we have to use an older version
+# RUN pip3 install -U "py-cord[speed]"
+RUN pip3 install -U "py-cord[speed]"==2.3.0
 
 WORKDIR /app/
 

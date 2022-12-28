@@ -45,7 +45,11 @@ class BetterHelpCommand(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         e = discord.Embed(title=info['name'])
         e.add_field(name='Contribute at', value=info['repo'], inline=False)
-        cogs = [(cog, await self.filter_commands(mapping[cog])) for cog in mapping.keys()]
+        # cogs = [(cog, await self.filter_commands(mapping[cog])) for cog in mapping.keys()]
+        cogs = []
+        for cog in mapping.keys():
+            n = await self.filter_commands(mapping[cog])
+            cogs.append((cog, n))
         cogs = [x for x in cogs if len(x[1]) > 0]
         for i, (cog, cmds) in enumerate(cogs):
             if i % 2 == 0:
