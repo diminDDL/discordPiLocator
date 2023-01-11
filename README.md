@@ -8,7 +8,7 @@ The bot also includes the ability to filter *models*, *countries* and *vendors* 
 Fell free to contact me on Discord [dimin#8885](https://discordapp.com/users/312591385624576001) if you have any qestions.
 
 # Add the bot to your server
-If you don't want to host it yourself you can just invite the public version using this invite [link](https://discord.com/api/oauth2/authorize?client_id=824761148796698654&permissions=274878187520&scope=bot%20applications.commands).
+If you don't want to host it yourself you can just invite the public version using this invite [link](https://discord.com/api/oauth2/authorize?client_id=824761148796698654&permissions=274878318592&scope=bot%20applications.commands).
 
 ## Installation and first run
 The following instructions will be for a Debian system. **⚠️ There can be problems if your system uses SELinux!**
