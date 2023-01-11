@@ -38,7 +38,7 @@ async def check_permissions(ctx, channel: discord.TextChannel, role: discord.Rol
     elif not channel.permissions_for(ctx.me).embed_links:
         await ctx.respond("I don't have permission to embed links in that channel.")
         return False
-    elif not role.mentionable:
+    elif not role.mention:
         await ctx.respond("I don't have permission to mention that role.")
         return False
     return True
@@ -66,6 +66,20 @@ class Locate(commands.Cog, name="piLocate"):
         self.lastFail = None
         self.updateFailed = False
         self.listen.start()
+        if self.bot.debugmode:
+            print("Cog loaded: Locate loaded")
+            print("Control list: " + str(self.control)) 
+
+    @commands.command(aliases=["test"])
+    async def sendTest(self, ctx, channel: discord.TextChannel):
+        """
+        Sends a test message to the specified channel
+        """
+        for channelInt in await self.getUpdateChannelList(ctx.guild):
+            if channelInt == channel.id:
+                role = ctx.guild.get_role(int(await self.redis.hget(f"notification_settings:{ctx.guild.id}:{channelInt}", 'role')))
+                await channel.send(f"Test message {role.mention}")
+                return
 
     @bridge.bridge_command(aliases=["lastupdate", "lu", "last", "update"])
     async def lastcheck(self, ctx: bridge.BridgeContext):
@@ -271,6 +285,7 @@ class Locate(commands.Cog, name="piLocate"):
             for entries in f.entries:
                 if entries.id not in self.control:
                     
+                    fail = self.updateFailed
                     embed = self.formatEmbed(entries, datetime.datetime.fromtimestamp(mktime(entries.published_parsed)))
 
                     for guild in await self.getGuildList():
@@ -279,7 +294,10 @@ class Locate(commands.Cog, name="piLocate"):
                             role = guild.get_role(int(await self.redis.hget(f"notification_settings:{guild.id}:{channelInt}", 'role')))
                             if (await self.checkFilter(entries, guild, channel)):
                                 await channel.send(embed=embed)
-                                await channel.send(f"{role.mention}")
+                                if not fail:
+                                    await channel.send(f"{role.mention}")
+                                if self.bot.debugmode:
+                                    print(f"Sent notification to {channel.name}-({channel.id}) in {guild.name}-({guild.id}) for {entries.title}")
 
                     self.control.append(entries.id)
         except Exception as e:

@@ -43,7 +43,7 @@ class SudoCommands(commands.Cog, name="administrative commands"):
     async def debug(self, ctx):
         """produces more verbose error messages"""
         self.bot.debugmode = not self.bot.debugmode
-        await ctx.message.delete()
+        await ctx.send(f"Debug mode is now {self.bot.debugmode}")
 
     @commands.is_owner()
     @commands.command()
