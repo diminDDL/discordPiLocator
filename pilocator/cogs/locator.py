@@ -228,7 +228,10 @@ class Locate(commands.Cog, name="piLocate"):
         guildList = []
         key_list = [key async for key in self.redis.scan_iter(match=f"notification_settings:*")]
         for n in key_list:
-            guild = await self.bot.fetch_guild(int(n.split(':')[1]))
+            try:
+                guild = await self.bot.fetch_guild(int(n.split(':')[1]))
+            except:
+                continue
             if guild not in guildList:
                 guildList.append(guild)
         return guildList
@@ -290,14 +293,18 @@ class Locate(commands.Cog, name="piLocate"):
 
                     for guild in await self.getGuildList():
                         for channelInt in await self.getUpdateChannelList(guild):
-                            channel = await self.bot.fetch_channel(channelInt)
-                            role = guild.get_role(int(await self.redis.hget(f"notification_settings:{guild.id}:{channelInt}", 'role')))
-                            if (await self.checkFilter(entries, guild, channel)):
-                                await channel.send(embed=embed)
-                                if not fail:
-                                    await channel.send(f"{role.mention}")
-                                if self.bot.debugmode:
-                                    print(f"Sent notification to {channel.name}-({channel.id}) in {guild.name}-({guild.id}) for {entries.title}")
+                            # if we had a fail, we want to send the message to continue sending to the rest of the channels
+                            try:
+                                channel = await self.bot.fetch_channel(channelInt)
+                                role = guild.get_role(int(await self.redis.hget(f"notification_settings:{guild.id}:{channelInt}", 'role')))
+                                if (await self.checkFilter(entries, guild, channel)):
+                                    await channel.send(embed=embed)
+                                    if not fail:
+                                        await channel.send(f"{role.mention}")
+                                    if self.bot.debugmode:
+                                        print(f"Sent notification to {channel.name}-({channel.id}) in {guild.name}-({guild.id}) for {entries.title}")
+                            except:
+                                continue
 
                     self.control.append(entries.id)
         except Exception as e:
