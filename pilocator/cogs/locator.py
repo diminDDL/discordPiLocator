@@ -6,6 +6,11 @@ import discord
 import datetime
 import requests
 import feedparser
+import asyncio
+import functools
+from concurrent.futures import ProcessPoolExecutor
+from time import sleep
+from io import BytesIO
 from urllib.parse import urlparse, parse_qs
 from time import mktime
 from discord.ext import commands, tasks, bridge
@@ -51,13 +56,31 @@ class Locate(commands.Cog, name="piLocate"):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
         self.redis = self.bot.redis
+        self.pp = ProcessPoolExecutor(max_workers=1)    
+        self.sep = asyncio.Semaphore(2)
+        self.ll = asyncio.get_event_loop()
+        print("initialized bot and redis")
         self.FEED_URL = 'https://rpilocator.com/feed/'
         self.USER_AGENT = 'DiscordBot'
         self.control = []
-        f = feedparser.parse(self.FEED_URL, agent=self.USER_AGENT)
+        print("Getting feed...")
+        success = False
+        while not success:
+            try:
+                resp = requests.get(self.FEED_URL, timeout=20.0)
+                # convert the above into aiohttp
+                success = True
+            except requests.ReadTimeout:
+                print(f"Timeout when reading RSS {self.FEED_URL} will wait a minute and try again")
+                sleep(60)
+            
+        content = BytesIO(resp.content)
+        f = feedparser.parse(content)
+        print("Got feed")
         if f.entries:
             for entries in f.entries:
                 self.control.append(entries.id)
+        print("locator cog loaded")
 
         # self.control.pop(0)    # remove after testing
         # self.control.pop(1)    # remove after testing
@@ -69,6 +92,18 @@ class Locate(commands.Cog, name="piLocate"):
         if self.bot.debugmode:
             print("Cog loaded: Locate loaded")
             print("Control list: " + str(self.control)) 
+
+    async def get_feed(self, FEED_URL):
+        async with self.sep:
+            try:
+                # for some reason it never runs the function if you use an actual executor, so this is a temporary workaround
+                resp = await asyncio.wait_for(self.ll.run_in_executor(executor=None, func=functools.partial(requests.get, FEED_URL, timeout=60.0)), timeout=30.0)
+            except asyncio.TimeoutError:
+                print("Getting feed timed out")
+                return None
+            content = BytesIO(resp.content)
+            f = feedparser.parse(content)
+        return f
 
     @commands.command(aliases=["test"])
     async def sendTest(self, ctx, channel: discord.TextChannel):
@@ -283,7 +318,9 @@ class Locate(commands.Cog, name="piLocate"):
     @tasks.loop(seconds=59.0)
     async def listen(self):
         try:
-            f = feedparser.parse(self.FEED_URL, agent=self.USER_AGENT)
+            f = await self.get_feed(self.FEED_URL)
+            if f is None:
+                return
             self.lastUpdate = datetime.datetime.now()
             for entries in f.entries:
                 if entries.id not in self.control:
