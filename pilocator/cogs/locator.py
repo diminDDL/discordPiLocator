@@ -20,7 +20,7 @@ from pilocator.backend.util import can_change_settings
 
 allowedRegions = ["AU", "AT", "BE", "CA", "CH", "CN", "DE", "DK", "ES", "FR", "IT", "MX", "JP", "NL", "PL", "PT", "SE", "UK", "US", "ZA"]
 allowedVendors = ["adafruit", "berrybase", "botland", "chicagodist", "coolcomp", "digikeyus", "electrokit", "elektor", "elektronica", "farnell", "kubii", "mauserpt", "mchobby", "melopero", "newark", "okdonl", "okdouk", "okdous", "pi3g", "pimoroni", "pishopca", "pishopch", "pishopus", "pishopza", "rapid", "raspberrystore", "rasppishop", "reichelt", "sbcomp", "seeedstudio", "semaf", "sparkfun", "switchjp", "thepihut", "tiendatec", "vilros", "welectron"]
-allowedDevices = ["CM3", "CM4", "PI3", "PI4", "PI5", "PIZERO", "PIZERO2"]
+allowedDevices = ["CM3", "CM4", "PI3", "PI4", "PIZERO", "PIZERO2", "PI5"]
 
 
 async def is_allowed_filter(filter: str):
@@ -279,6 +279,7 @@ class Locate(commands.Cog, name="piLocate"):
             allowedDevices[3]: "RPi 4",     # PI4
             allowedDevices[4]: "Pi Zero",   # PI ZERO
             allowedDevices[5]: "Pi Zero 2", # PI ZERO 2 W
+            allowedDevices[6]: "RPi 5",     # PI5
         }
         key = f"notification_settings:{guild.id}:{channel.id}"
         data = await self.redis.hgetall(key)
