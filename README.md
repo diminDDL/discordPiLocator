@@ -5,7 +5,7 @@ A Discord bot used to get alerts on when raspberry pi's get back in stock. Using
 
 The bot also includes the ability to filter *models*, *countries* and *vendors* so that you can only get notified for the things you care about. For more info run `-help` to get a list of all commands, or `-help <command>` to get help regarding a specific command.
 
-Fell free to contact me on Discord [dimin#8885](https://discordapp.com/users/312591385624576001) if you have any qestions.
+Fell free to contact me on Discord [diminddl](https://discordapp.com/users/312591385624576001) if you have any qestions.
 
 # Add the bot to your server
 If you don't want to host it yourself you can just invite the public version using this invite [link](https://discord.com/api/oauth2/authorize?client_id=824761148796698654&permissions=274878318592&scope=bot%20applications.commands).
